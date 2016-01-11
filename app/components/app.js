@@ -1,10 +1,14 @@
 import React from 'react';
+import Counter from 'components/counter';
 import 'scss/app.scss';
 
 class App extends React.Component {
   render() {
     return (
-      <h1>Example!</h1>
+      <div>
+        <h1>Counter App</h1>
+        <Counter/>
+      </div>
     );
   }
 }
