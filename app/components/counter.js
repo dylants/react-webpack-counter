@@ -1,22 +1,29 @@
 import React, { Component, PropTypes } from 'react';
+import connectToStores from 'alt-utils/lib/connectToStores';
+import CounterStore from 'stores/counterStore';
+import CounterActions from 'actions/counterActions';
 
-export default class Counter extends Component {
-  constructor(props) {
-    super(props);
+class Counter extends Component {
+  static getStores() {
+    return [CounterStore];
+  }
+
+  static getPropsFromStores() {
+    return CounterStore.getState();
   }
 
   increment() {
-    console.log('increment');
+    CounterActions.incrementCounter();
   }
 
   decrement() {
-    console.log('decrement');
+    CounterActions.decrementCounter();
   }
 
   render() {
     return (
       <div>
-        <p>Counter {this.props.count}</p>
+        <p>Counter {this.props.counter}</p>
         <button onClick={this.increment}>+</button>
         <button onClick={this.decrement}>-</button>
       </div>
@@ -25,5 +32,7 @@ export default class Counter extends Component {
 }
 
 Counter.propTypes = {
-  count: PropTypes.number,
+  counter: PropTypes.number,
 };
+
+export default connectToStores(Counter);
