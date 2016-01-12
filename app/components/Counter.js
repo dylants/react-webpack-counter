@@ -5,25 +5,19 @@ export default class Counter extends Component {
     super(props);
   }
 
-  increment() {
-    console.log('increment');
-  }
-
-  decrement() {
-    console.log('decrement');
-  }
-
   render() {
     return (
       <div>
         <p>Counter {this.props.count}</p>
-        <button onClick={this.increment}>+</button>
-        <button onClick={this.decrement}>-</button>
+        <button onClick={this.props.onIncrementClick}>+</button>
+        <button onClick={this.props.onDecrementClick}>-</button>
       </div>
     );
   }
 }
 
 Counter.propTypes = {
-  count: PropTypes.number,
+  count: PropTypes.number.isRequired,
+  onIncrementClick: PropTypes.func.isRequired,
+  onDecrementClick: PropTypes.func.isRequired,
 };
