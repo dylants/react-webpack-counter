@@ -8,6 +8,7 @@ const path = require('path');
 
 // default the environment to development
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const IS_PRODUCTION = NODE_ENV === 'production';
 const appPath = path.join(__dirname, 'app');
 const assetsPath = path.join(__dirname, 'dist');
 const publicPath = '/';
@@ -33,28 +34,21 @@ function getPlugins() {
   ];
 
   // add plugins that should be used only in certain environments
-  switch (NODE_ENV) {
-    case 'production':
+  if (IS_PRODUCTION) {
+    // http://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
+    plugins.push(new webpack.optimize.DedupePlugin());
 
-      // http://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
-      plugins.push(new webpack.optimize.DedupePlugin());
+    // http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
+    plugins.push(new webpack.optimize.UglifyJsPlugin({
+      minimize: true,
+      sourceMap: true,
+    }));
+  } else {
+    // http://webpack.github.io/docs/list-of-plugins.html#hotmodulereplacementplugin
+    plugins.push(new webpack.HotModuleReplacementPlugin());
 
-      // http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
-      plugins.push(new webpack.optimize.UglifyJsPlugin({
-        minimize: true,
-        sourceMap: true,
-      }));
-      break;
-    case 'development':
-
-      // http://webpack.github.io/docs/list-of-plugins.html#hotmodulereplacementplugin
-      plugins.push(new webpack.HotModuleReplacementPlugin());
-
-      // http://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
-      plugins.push(new webpack.NoErrorsPlugin());
-      break;
-    default:
-      throw new Error('Unknown environment: ' + NODE_ENV);
+    // http://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
+    plugins.push(new webpack.NoErrorsPlugin());
   }
 
   return plugins;
@@ -82,8 +76,8 @@ function getLoaders() {
 function getEntry() {
   const entry = [];
 
-  // hot reload only when in dev environment
-  if (NODE_ENV === 'development') {
+  // hot reload only when in non-production environment
+  if (!IS_PRODUCTION) {
     // https://github.com/glenjamin/webpack-hot-middleware#config
     entry.push('webpack-hot-middleware/client?reload=true');
   }
@@ -98,7 +92,7 @@ function getOutput() {
   let output;
 
   // in production, we need a special output object
-  if (NODE_ENV === 'production') {
+  if (IS_PRODUCTION) {
     output = {
       path: assetsPath,
       filename: '[name]-[hash].min.js',
@@ -118,11 +112,13 @@ module.exports = {
   // necessary per https://webpack.github.io/docs/testing.html#compile-and-test
   target: NODE_ENV === 'test' ? 'node' : 'web',
 
-  debug: true,
+  // enable debug and cache in non-production environments
+  debug: !IS_PRODUCTION,
+  cache: !IS_PRODUCTION,
 
   // more info: https://webpack.github.io/docs/build-performance.html#sourcemaps
   // more info: https://webpack.github.io/docs/configuration.html#devtool
-  devtool: NODE_ENV === 'production' ? 'source-map' : 'eval-source-map',
+  devtool: IS_PRODUCTION ? 'source-map' : 'eval-source-map',
 
   // set to false to see a list of every file being bundled.
   noInfo: true,
