@@ -10,6 +10,7 @@ import webpackConfig from './webpack.config.js';
 // default to development environment
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const isDev = NODE_ENV !== 'production';
+
 // default to port 3000 if not supplied
 const port = process.env.PORT || 3000;
 const app = express();
@@ -32,12 +33,12 @@ if (isDev) {
   app.use(middleware);
   app.use(webpackHotMiddleware(compiler));
 } else {
-  app.use(express.static(__dirname + '/dist'));
+  app.use(express.static(path.join(__dirname, 'dist')));
 }
 
 // for now, all requests render the index page
 app.all('*', function response(req, res) {
-  res.sendFile(path.join(__dirname, 'dist/index.html'));
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(port, function onStart(err) {
